@@ -12,6 +12,7 @@ function Home() {
     const fetchLeagues = async () => {
       try {
         const response = await getLeaguesList();
+        console.log('Leagues Response:', response.data);
         if (response.data && response.data.success) {
           // Sadece futbol liglerini filtrele ve özet/gol olmayanları al
           const footballLeagues = response.data.result.filter(league => 
@@ -21,6 +22,7 @@ function Home() {
             !league.key.includes('nba') &&
             !league.key.includes('euroleague')
           );
+          console.log('Filtered Leagues:', footballLeagues);
           setLeagues(footballLeagues);
         }
       } catch (err) {
@@ -38,18 +40,22 @@ function Home() {
 
         for (const league of leagues) {
           const response = await getResults(league.key);
+          console.log(`Matches for ${league.league}:`, response.data);
           if (response.data && Array.isArray(response.data.result)) {
             // Türkiye saati için bugünün tarihini al
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            today.setHours(today.getHours() + 3); // Türkiye saati için +3 ekle
+            const todayStr = today.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
+            console.log('Today:', todayStr);
 
             // Sadece bugünün maçlarını filtrele
             const todayMatches = response.data.result.filter(match => {
               const matchDate = new Date(match.date);
-              matchDate.setHours(0, 0, 0, 0);
-              return matchDate.getTime() === today.getTime();
+              const matchDateStr = matchDate.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
+              console.log('Match Date:', matchDateStr, 'Match:', match);
+              return matchDateStr === todayStr;
             });
+
+            console.log(`Today's matches for ${league.league}:`, todayMatches);
 
             matchesByLeague[league.key] = {
               name: league.league,
@@ -63,6 +69,7 @@ function Home() {
           }
         }
 
+        console.log('All matches by league:', matchesByLeague);
         setTodayMatches(matchesByLeague);
         setLoading(false);
       } catch (err) {
