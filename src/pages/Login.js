@@ -9,7 +9,8 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    console.log('merhaba')
+
     if (username === process.env.REACT_APP_USERNAME && password === process.env.REACT_APP_PASSWORD) {
       localStorage.setItem('isAuthenticated', 'true');
       navigate('/');
